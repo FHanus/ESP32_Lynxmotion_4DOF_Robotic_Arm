@@ -1,6 +1,7 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <ESP32Servo.h>
+#include "index_html.h"
 
 Servo servo1, servo2, servo3, servo4, endEffector;
 static const int servoPins[5] = {5, 18, 19, 21, 22};
@@ -20,9 +21,11 @@ void motorControlTask(void *parameter);
 void setup() {
   Serial.begin(115200);
 
-  for (int i = 0; i < 5; i++) {
-    servo1.attach(servoPins[i]);
-  }
+  servo1.attach(servoPins[0]);
+  servo2.attach(servoPins[1]);
+  servo3.attach(servoPins[2]);
+  servo4.attach(servoPins[3]);
+  endEffector.attach(servoPins[4]);
 
   WiFi.begin(ssid, password);
   Serial.print("Connecting to WiFi ..");
@@ -47,22 +50,7 @@ void loop() {
 }
 
 void handleRoot() {
-  String html = "<html><body>";
-  html += "<h1>Robot Control</h1>";
-  html += "<form action='/setState' method='get'>";
-  html += "<input type='radio' name='state' value='standby' ";
-  if (currentState == STANDBY) html += "checked";
-  html += "> Standby<br>";
-  html += "<input type='radio' name='state' value='teach' ";
-  if (currentState == TEACH) html += "checked";
-  html += "> Teach<br>";
-  html += "<input type='radio' name='state' value='operate' ";
-  if (currentState == OPERATE) html += "checked";
-  html += "> Operate<br><br>";
-  html += "<input type='submit' value='Set State'>";
-  html += "</form></body></html>";
-
-  server.send(200, "text/html", html);
+  server.send(200, "text/html", index_html);
 }
 
 void handleStateChange() {
