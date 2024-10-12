@@ -70,27 +70,27 @@ const char index_html[] PROGMEM = R"rawliteral(
       flex: 1;
     }
   </style>
-  <script>
-    var intervalId;
+    <script>
+      var intervalId;
 
-    function sendAction(action) {
-      var xhttp = new XMLHttpRequest();
-      xhttp.open("GET", "/control?action=" + action, true);
-      xhttp.send();
-    }
+      function sendAction(action) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("GET", "/control?action=" + action, true);
+        xhttp.send();
+      }
 
-    function startSending(action) {
-      sendAction(action);
-      intervalId = setInterval(function() {
+      function startSending(action) {
         sendAction(action);
-      }, 100); // Send action every 100ms while button is held
-    }
+        intervalId = setInterval(function() {
+          sendAction(action);
+        }, 100); // Send action every 100ms while button is held
+      }
 
-    function stopSending() {
-      clearInterval(intervalId);
-      sendAction("stop"); // Notify server to stop the action
-    }
-  </script>
+      function stopSending() {
+        clearInterval(intervalId);
+        sendAction("stop"); // Notify server to stop the action
+      }
+    </script>
 </head>
 <body>
   <h1>Lynx Robot Control</h1>

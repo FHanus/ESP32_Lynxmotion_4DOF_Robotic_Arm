@@ -126,6 +126,6 @@ void motorControlTask(void *parameter) {
     if (currentAction != "") {
       Serial.println("Action: " + currentAction);
     }
-    vTaskDelay(100 / portTICK_PERIOD_MS);g
+    vTaskDelay(100 / portTICK_PERIOD_MS);
   }
 }
