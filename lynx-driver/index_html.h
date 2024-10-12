@@ -22,15 +22,21 @@ const char index_html[] PROGMEM = R"rawliteral(
       border: none;
       cursor: pointer;
       margin: 5px;
+      user-select: none;
     }
     .button:hover {
       background-color: #006f9b;
     }
-    .container {
-      display: flex;
-      justify-content: center;
-      width: 100vw;
+    .container, .gripper {
+      width: 100%;
       box-sizing: border-box;
+    }
+    .state-buttons {
+      display: flex;
+      width: 100%;
+    }
+    .state-buttons .button {
+      flex: 1;
     }
     .controller {
       display: flex;
@@ -64,34 +70,61 @@ const char index_html[] PROGMEM = R"rawliteral(
       flex: 1;
     }
   </style>
+  <script>
+    var intervalId;
+
+    function sendAction(action) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("GET", "/control?action=" + action, true);
+      xhttp.send();
+    }
+
+    function startSending(action) {
+      sendAction(action);
+      intervalId = setInterval(function() {
+        sendAction(action);
+      }, 100); // Send action every 100ms while button is held
+    }
+
+    function stopSending() {
+      clearInterval(intervalId);
+      sendAction("stop"); // Notify server to stop the action
+    }
+  </script>
 </head>
 <body>
   <h1>Lynx Robot Control</h1>
   <div class="container">
-    <form action="/setState" method="get" style="width: 100%; display: flex; justify-content: center;">
+    <form action="/setState" method="get" class="state-buttons">
       <button class="button" name="state" value="standby">Standby</button>
       <button class="button" name="state" value="teach">Teach</button>
       <button class="button" name="state" value="operate">Operate</button>
     </form>
   </div>
 
-  <div class="controller">
-    <form action="/control" method="get">
-      <div class="row">
-        <button class="button" name="action" value="up">Up</button>
-      </div>
-      <div class="middle-row">
-        <button class="button" name="action" value="left">Left</button>
-        <div class="column">
-          <button class="button" name="action" value="forward">Forward</button>
-          <button class="button" name="action" value="backward">Backward</button>
-        </div>
-        <button class="button" name="action" value="right">Right</button>
-      </div>
-      <div class="row">
-        <button class="button" name="action" value="down">Down</button>
-      </div>
+  <div class="gripper">
+    <form action="/setGripperState" method="get" class="state-buttons">
+      <button class="button" name="gripper" value="open">Open Gripper</button>
+      <button class="button" name="gripper" value="close">Close Gripper</button>
     </form>
+  </div>
+
+  <div class="controller">
+    <!-- Updated buttons with event handlers -->
+    <div class="row">
+      <button class="button" onmousedown="startSending('up')" onmouseup="stopSending()" ontouchstart="startSending('up')" ontouchend="stopSending()">Up</button>
+    </div>
+    <div class="middle-row">
+      <button class="button" onmousedown="startSending('left')" onmouseup="stopSending()" ontouchstart="startSending('left')" ontouchend="stopSending()">Left</button>
+      <div class="column">
+        <button class="button" onmousedown="startSending('forward')" onmouseup="stopSending()" ontouchstart="startSending('forward')" ontouchend="stopSending()">Forward</button>
+        <button class="button" onmousedown="startSending('backward')" onmouseup="stopSending()" ontouchstart="startSending('backward')" ontouchend="stopSending()">Backward</button>
+      </div>
+      <button class="button" onmousedown="startSending('right')" onmouseup="stopSending()" ontouchstart="startSending('right')" ontouchend="stopSending()">Right</button>
+    </div>
+    <div class="row">
+      <button class="button" onmousedown="startSending('down')" onmouseup="stopSending()" ontouchstart="startSending('down')" ontouchend="stopSending()">Down</button>
+    </div>
   </div>
 </body>
 </html>

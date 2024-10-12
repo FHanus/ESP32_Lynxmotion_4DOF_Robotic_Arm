@@ -9,13 +9,20 @@ static const int servoPins[5] = {5, 18, 19, 21, 22};
 enum State { STANDBY, TEACH, OPERATE };
 State currentState = STANDBY;
 
+enum GripperState { GRIPPER_OPEN, GRIPPER_CLOSE };
+GripperState currentGripperState = GRIPPER_OPEN;
+
 const char *ssid = "VM1410617";
 const char *password = "p8xcLsyjnb6j";
 
 WebServer server(80);
 
+String currentAction = "";
+
 void handleRoot();
 void handleStateChange();
+void handleGripperStateChange(); 
+void handleControl();            
 void motorControlTask(void *parameter);
 
 void setup() {
@@ -39,6 +46,8 @@ void setup() {
 
   server.on("/", handleRoot);
   server.on("/setState", handleStateChange);
+  server.on("/setGripperState", handleGripperStateChange);
+  server.on("/control", handleControl);                   
 
   server.begin();
 
@@ -66,6 +75,31 @@ void handleStateChange() {
   server.send(303);
 }
 
+void handleGripperStateChange() {
+  String gripperState = server.arg("gripper");
+  if (gripperState == "open") {
+    currentGripperState = GRIPPER_OPEN;
+  } else if (gripperState == "close") {
+    currentGripperState = GRIPPER_CLOSE;
+  }
+  server.sendHeader("Location", "/");
+  server.send(303);
+}
+
+void handleControl() {
+  if (server.hasArg("action")) {
+    String action = server.arg("action");
+    if (action == "stop") {
+      currentAction = "";
+    } else {
+      currentAction = action;
+    }
+    server.send(200, "text/plain", "OK");
+  } else {
+    server.send(400, "text/plain", "Bad Request");
+  }
+}
+
 void motorControlTask(void *parameter) {
   while (true) {
     switch (currentState) {
@@ -79,6 +113,19 @@ void motorControlTask(void *parameter) {
         Serial.println("State: Operate");
         break;
     }
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+    switch (currentGripperState) {
+      case GRIPPER_OPEN:
+        Serial.println("Gripper State: Open");
+        break;
+      case GRIPPER_CLOSE:
+        Serial.println("Gripper State: Close");
+        break;
+    }
+
+    if (currentAction != "") {
+      Serial.println("Action: " + currentAction);
+    }
+    vTaskDelay(100 / portTICK_PERIOD_MS);g
   }
 }
