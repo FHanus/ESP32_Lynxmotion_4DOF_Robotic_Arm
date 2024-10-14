@@ -16,26 +16,41 @@ void motorControlTask(void* parameter) {
   while (true) {
     switch (currentState) {
       case STANDBY:
-        Serial.println("State: Standby");
+        standbyState();
         break;
       case TEACH:
-        Serial.println("State: Teach");
+        teachState();
         break;
       case OPERATE:
-        Serial.println("State: Operate");
+        operationState();
         break;
-    }
-    switch (currentGripperState) {
-      case GRIPPER_OPEN:
-        Serial.println("Gripper State: Open");
-        break;
-      case GRIPPER_CLOSE:
-        Serial.println("Gripper State: Close");
-        break;
-    }
-    if (!currentAction.isEmpty()) {
-      Serial.println("Action: " + currentAction);
     }
     vTaskDelay(pdMS_TO_TICKS(100));
   }
+}
+
+void standbyState(){
+  Serial.print("\nState: Standby - Printing out client inputs only");
+
+  switch (currentGripperState) {
+      case GRIPPER_OPEN:
+        Serial.print(" | Gripper State: Open");
+        break;
+      case GRIPPER_CLOSE:
+        Serial.print(" | Gripper State: Close");
+        break;
+    }
+  if (!currentAction.isEmpty()) {
+    Serial.print(" | Action: " + currentAction);
+  }
+}
+
+void teachState(){
+  Serial.println("State: Teach");
+  
+}
+
+void operationState(){
+  Serial.println("State: Operate");
+  
 }
