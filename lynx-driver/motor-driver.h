@@ -14,15 +14,16 @@ struct AngularPosition {
   int angularOutput4;
 };
 
-// Function Prototypes
 bool actuatorsSetup();
 void motorControlTask(void* parameter);
 void standbyState();
 void teachState();
 void operationState();
 void servoControlTask(void* parameter);
-Position forwardKinematics();
 void setup();
 void loop();
+
+bool recordPosition();
+void replayPositions();
 
 #endif // MOTOR_DRIVER_H

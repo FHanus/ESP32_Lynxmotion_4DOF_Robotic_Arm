@@ -4,31 +4,38 @@
 #include <WiFi.h>
 #include <WebServer.h>
 #include <ESP32Servo.h>
+#include "motor-driver.h" 
 
-// Constants
-static const int SERVO_PINS[5] = {40, 41, 38, 39, 42};
+static const int SERVO_PINS[5] = {38, 39, 40, 41, 42};
 
-// Link lengths in metres
 static const float L1 = 0.146f;
 static const float L2 = 0.223f;
 static const float L3 = 0.06f;
 
-// Enumerations
 enum State { STANDBY, TEACH, OPERATE };
 enum GripperState { GRIPPER_OPEN, GRIPPER_CLOSE };
 
-// Extern Global Variables
+struct PositionRecord {
+  float angle1;
+  float angle2;
+  float angle3;
+  float angle4;
+  GripperState eeState;
+};
+
 extern Servo servo1, servo2, servo3, servo4, endEffector;
 extern State currentState;
 extern GripperState currentGripperState;
 extern WebServer server;
 
-// Servo angle variables
 extern float currentAngle1, currentAngle2, currentAngle3, currentAngle4;
 extern float targetAngle1, targetAngle2, targetAngle3, targetAngle4;
 extern int angleEndEffector;
 
-// Function Prototypes
+extern PositionRecord positionRecords[10];
+extern int recordCount;
+extern int currentReplayIndex;
+
 bool actuatorsSetup();
 bool serverSetup();
 void handleRoot();
@@ -39,6 +46,5 @@ void handleGetServoAngles();
 void motorControlTask(void* parameter);
 void servoControlTask(void* parameter);
 void clientHandleTask(void* parameter);
-void forwardKinematics(float& x0, float& y0, float& x1, float& y1, float& x2, float& y2, float& x3, float& y3);
 
 #endif // DEFINITIONS_H

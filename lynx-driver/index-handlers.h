@@ -3,7 +3,6 @@
 
 #include "definitions.h"
 
-// Function Prototypes
 bool serverSetup();
 void clientHandleTask(void* parameter);
 void handleRoot();

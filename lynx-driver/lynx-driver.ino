@@ -4,7 +4,7 @@
 
 void setup() {
   Serial.begin(115200);
-
+  
   if (!actuatorsSetup()) {
     Serial.println("Failed to initialize actuators.");
   }
@@ -13,10 +13,34 @@ void setup() {
     Serial.println("Failed to start server.");
   }
 
-  xTaskCreatePinnedToCore(servoControlTask, "Servo Control Task", 4096, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(motorControlTask, "Motor Control Task", 4096, NULL, 1, NULL, 1);
-  xTaskCreatePinnedToCore(clientHandleTask, "Client Handle Task", 4096, NULL, 1, NULL, 0);
+  xTaskCreatePinnedToCore(
+    motorControlTask,         // Task
+    "Motor Control Task",     // Name
+    4096,                     // Stack size
+    NULL,                     // Task input
+    1,                        // Priority
+    NULL,                     // Task handle
+    1);                       // Core
+
+  xTaskCreatePinnedToCore(
+    servoControlTask,         // Task
+    "Servo Control Task",     // Name
+    4096,                     // Stack size
+    NULL,                     // Task input
+    1,                        // Priority
+    NULL,                     // Task handle
+    1);                       // Core n
+
+  xTaskCreatePinnedToCore(
+    clientHandleTask,         // Task
+    "Client Handle Task",     // Name
+    4096,                     // Stack size
+    NULL,                     // Task input
+    1,                        // Priority 
+    NULL,                     // Task handle
+    0);                       // Core 
 }
 
 void loop() {
+  vTaskDelay(pdMS_TO_TICKS(1000));
 }
