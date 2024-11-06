@@ -9,7 +9,7 @@ void clientHandleTask(void* parameter);
 void handleRoot();
 void handleStateChange();
 void handleGripperStateChange();
-void handleControl();
-void handleGetJointAngles();
+void handleServoControl(); 
+void handleGetServoAngles();
 
 #endif // INDEX_HANDLERS_H

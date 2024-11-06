@@ -1,11 +1,31 @@
 #include "index-handlers.h"
 #include "index-html.h"
-#include "config.h" 
+#include "config.h"
 
-/**
- * @brief Sets up the Wi-Fi connection and web server.
- * @return true if successful, false otherwise.
- */
+String currentStateToString(State state) {
+  switch (state) {
+    case STANDBY:
+      return "standby";
+    case TEACH:
+      return "teach";
+    case OPERATE:
+      return "operate";
+    default:
+      return "unknown";
+  }
+}
+
+String currentGripperStateToString(GripperState gripperState) {
+  switch (gripperState) {
+    case GRIPPER_OPEN:
+      return "open";
+    case GRIPPER_CLOSE:
+      return "close";
+    default:
+      return "unknown";
+  }
+}
+
 bool serverSetup() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(SSID, PASSWORD);
@@ -13,7 +33,6 @@ bool serverSetup() {
 
   unsigned long startAttemptTime = millis();
 
-  // Attempt to connect for 10 seconds
   while (WiFi.status() != WL_CONNECTED && millis() - startAttemptTime < 10000) {
     Serial.print(".");
     delay(500);
@@ -28,38 +47,31 @@ bool serverSetup() {
   Serial.print("IP Address: ");
   Serial.println(WiFi.localIP());
 
-  // Set up server routes
   server.on("/", handleRoot);
   server.on("/setState", handleStateChange);
   server.on("/setGripperState", handleGripperStateChange);
-  server.on("/control", handleControl);
-  server.on("/getJointAngles", handleGetJointAngles);
+  server.on("/servoControl", handleServoControl); 
+  server.on("/getServoAngles", handleGetServoAngles);
+  server.onNotFound(handleRoot); 
 
   server.begin();
   return true;
 }
 
-/**
- * @brief Task for handling incoming client requests.
- * @param parameter Task input parameter (unused).
- */
-void clientHandleTask(void* parameter){
+void clientHandleTask(void* parameter) {
   while (true) {
-    server.handleClient();  
+    server.handleClient();
     vTaskDelay(pdMS_TO_TICKS(10));
   }
 }
 
-/**
- * @brief Handles the root URL "/".
- */
 void handleRoot() {
-  server.send(200, "text/html", index_html);
+  String html = index_html; 
+  html.replace("%CURRENT_STATE%", currentStateToString(currentState));
+  html.replace("%CURRENT_GRIPPER_STATE%", currentGripperStateToString(currentGripperState));
+  server.send(200, "text/html", html);
 }
 
-/**
- * @brief Handles state change requests.
- */
 void handleStateChange() {
   String state = server.arg("state");
   if (state == "standby") {
@@ -76,19 +88,14 @@ void handleStateChange() {
   server.send(303);
 }
 
-/**
- * @brief Handles gripper state change requests.
- */
 void handleGripperStateChange() {
   String gripperState = server.arg("gripper");
   if (gripperState == "open") {
     currentGripperState = GRIPPER_OPEN;
-    // Set end effector to open position
-    angleEndEffector = 180; // Example value, adjust as needed
+    angleEndEffector = 180;
   } else if (gripperState == "close") {
     currentGripperState = GRIPPER_CLOSE;
-    // Set end effector to closed position
-    angleEndEffector = 0; // Example value, adjust as needed
+    angleEndEffector = 0;
   } else {
     server.send(400, "text/plain", "Invalid gripper state.");
     return;
@@ -97,33 +104,79 @@ void handleGripperStateChange() {
   server.send(303);
 }
 
-/**
- * @brief Handles control actions from the client.
- */
-void handleControl() {
-  if (server.hasArg("action")) {
+void handleServoControl() {
+  if (server.hasArg("servo") && server.hasArg("action")) {
+    int servoId = server.arg("servo").toInt();
     String action = server.arg("action");
-    if (action == "stop") {
-      currentAction = "";
-    } else {
-      currentAction = action;
+    float delta = 10.0f; 
+
+    switch (servoId) {
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+        break;
+      default:
+        server.send(400, "text/plain", "Invalid servo ID.");
+        return;
     }
+    if (currentState == TEACH){
+      if (action == "increase") {
+        switch (servoId) {
+          case 1:
+            targetAngle1 += delta;
+            if (targetAngle1 > 180) targetAngle1 = 180;
+            break;
+          case 2:
+            targetAngle2 += delta;
+            if (targetAngle2 > 180) targetAngle2 = 180;
+            break;
+          case 3:
+            targetAngle3 += delta;
+            if (targetAngle3 > 180) targetAngle3 = 180;
+            break;
+          case 4:
+            targetAngle4 += delta;
+            if (targetAngle4 > 180) targetAngle4 = 180;
+            break;
+        }
+      } else if (action == "decrease") {
+        switch (servoId) {
+          case 1:
+            targetAngle1 -= delta;
+            if (targetAngle1 < 0) targetAngle1 = 0;
+            break;
+          case 2:
+            targetAngle2 -= delta;
+            if (targetAngle2 < 0) targetAngle2 = 0;
+            break;
+          case 3:
+            targetAngle3 -= delta;
+            if (targetAngle3 < 0) targetAngle3 = 0;
+            break;
+          case 4:
+            targetAngle4 -= delta;
+            if (targetAngle4 < 0) targetAngle4 = 0;
+            break;
+        }
+      } else {
+        server.send(400, "text/plain", "Invalid action.");
+        return;
+      }
+    }
+
     server.send(200, "text/plain", "OK");
   } else {
     server.send(400, "text/plain", "Bad Request");
   }
 }
 
-/**
- * @brief Handles requests to get joint angles.
- */
-void handleGetJointAngles() {
+void handleGetServoAngles() {
   String json = "{";
-  json += "\"theta1\":" + String(angle1) + ",";
-  json += "\"theta2\":" + String(angle2) + ",";
-  json += "\"theta3\":" + String(angle3) + ",";
-  json += "\"theta4\":" + String(angle4) + ",";
-  json += "\"thetaEndEffector\":" + String(angleEndEffector);
+  json += "\"angle1\":" + String(currentAngle1) + ",";
+  json += "\"angle2\":" + String(currentAngle2) + ",";
+  json += "\"angle3\":" + String(currentAngle3) + ",";
+  json += "\"angle4\":" + String(currentAngle4);
   json += "}";
   server.send(200, "application/json", json);
 }

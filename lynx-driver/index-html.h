@@ -11,156 +11,205 @@ const char index_html[] PROGMEM = R"rawliteral(
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
     }
     h1 {
       text-align: center;
       font-size: 34px;
+      margin-top: 20px;
+    }
+    .container, .gripper {
+      width: 90%;
+      margin: 0 auto;
+      box-sizing: border-box;
+      margin-bottom: 20px;
+    }
+    .state-buttons {
+      display: flex;
+      justify-content: space-around;
+      width: 100%;
+      margin-bottom: 20px;
     }
     .button {
-      padding: 30px;
+      padding: 15px 25px;
       text-align: center;
-      font-size: 28px;
+      font-size: 18px;
       background-color: #008CBA;
       color: white;
       border: none;
+      border-radius: 5px;
       cursor: pointer;
       margin: 5px;
       user-select: none;
+      flex: 1;
     }
     .button:hover {
       background-color: #006f9b;
     }
-    .container, .gripper {
-      width: 100%;
-      box-sizing: border-box;
+    .button.selected {
+      background-color: #005f7f; 
     }
-    .state-buttons {
+    .servo-control {
+      margin: 20px auto;
       display: flex;
-      width: 100%;
-    }
-    .state-buttons .button {
-      flex: 1;
-    }
-    .controller {
-      display: flex;
-      flex-direction: column;
       align-items: center;
-      margin-top: 20px;
-    }
-    .row {
-      display: flex;
       justify-content: center;
-      width: 100%;
+      width: 90%;
     }
-    .row > .button {
-      flex: 1;
+    .servo-control label {
+      width: 120px;
+      font-size: 18px;
+      margin-right: 10px;
     }
-    .middle-row {
+    .servo-buttons {
       display: flex;
-      justify-content: center;
-      align-items: stretch;
-      width: 100%;
     }
-    .middle-row .button, .middle-row .column {
-      flex: 1;
+    .servo-button {
+      padding: 10px 20px;
+      margin: 0 5px;
+      background-color: #008CBA;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
     }
-    .column {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
+    .servo-button:hover {
+      background-color: #006f9b;
     }
-    .column .button {
-      flex: 1;
-    }
-    .joint-angles {
-      text-align: center;
-      font-size: 20px;
-      margin: 10px;
+    .servo-button.active {
+      background-color: #005f7f; 
     }
   </style>
-    <script>
-      var intervalId;
+  <script>
+    var currentState = "%CURRENT_STATE%";
+    var currentGripperState = "%CURRENT_GRIPPER_STATE%";
 
-      function sendAction(action) {
-        var xhttp = new XMLHttpRequest();
-        xhttp.open("GET", "/control?action=" + action, true);
-        xhttp.send();
+    function highlightCurrentState() {
+      var stateButtons = {
+        'standby': document.getElementById('standbyButton'),
+        'teach': document.getElementById('teachButton'),
+        'operate': document.getElementById('operateButton')
+      };
+      if (currentState in stateButtons) {
+        stateButtons[currentState].classList.add('selected');
       }
 
-      function startSending(action) {
-        sendAction(action);
-        intervalId = setInterval(function() {
-          sendAction(action);
-        }, 100); // Send action every 100ms while button is held
+      var gripperButtons = {
+        'open': document.getElementById('openGripperButton'),
+        'close': document.getElementById('closeGripperButton')
+      };
+      if (currentGripperState in gripperButtons) {
+        gripperButtons[currentGripperState].classList.add('selected');
       }
+    }
 
-      function stopSending() {
-        clearInterval(intervalId);
-        sendAction("stop"); // Notify server to stop the action
-      }
+    var servoIntervals = {};
 
-      // Function to fetch and display joint angles
-      function fetchJointAngles() {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            var angles = JSON.parse(this.responseText);
-            document.getElementById("theta1").innerText = angles.theta1;
-            document.getElementById("theta2").innerText = angles.theta2;
-            document.getElementById("theta3").innerText = angles.theta3;
-            document.getElementById("theta4").innerText = angles.theta4;
-            document.getElementById("thetaEndEffector").innerText = angles.thetaEndEffector;
-          }
-        };
-        xhttp.open("GET", "/getJointAngles", true);
-        xhttp.send();
-      }
+    function sendServoAction(servoId, action) {
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("GET", "/servoControl?servo=" + servoId + "&action=" + action, true);
+      xhttp.send();
+    }
 
-      // Fetch joint angles every second
-      setInterval(fetchJointAngles, 1000);
-    </script>
+    function startServoAction(servoId, action, button) {
+      sendServoAction(servoId, action);
+      button.classList.add('active');
+      servoIntervals[servoId + action] = setInterval(function() {
+        sendServoAction(servoId, action);
+      }, 100);
+    }
+
+    function stopServoAction(servoId, action, button) {
+      clearInterval(servoIntervals[servoId + action]);
+      button.classList.remove('active');
+      sendServoAction(servoId, 'stop');
+    }
+
+    window.onload = function() {
+      highlightCurrentState();
+    };
+  </script>
 </head>
 <body>
   <h1>Lynx Robot Control</h1>
 
-  <div class="joint-angles">
-    <p>Theta1: <span id="theta1">0</span>°</p>
-    <p>Theta2: <span id="theta2">0</span>°</p>
-    <p>Theta3: <span id="theta3">0</span>°</p>
-    <p>Theta4: <span id="theta4">0</span>°</p>
-    <p>Theta End Effector: <span id="thetaEndEffector">0</span>°</p>
-  </div>
-
   <div class="container">
     <form action="/setState" method="get" class="state-buttons">
-      <button class="button" name="state" value="standby">Standby</button>
-      <button class="button" name="state" value="teach">Teach</button>
-      <button class="button" name="state" value="operate">Operate</button>
+      <button id="standbyButton" class="button" name="state" value="standby">Standby</button>
+      <button id="teachButton" class="button" name="state" value="teach">Teach</button>
+      <button id="operateButton" class="button" name="state" value="operate">Operate</button>
     </form>
   </div>
 
   <div class="gripper">
     <form action="/setGripperState" method="get" class="state-buttons">
-      <button class="button" name="gripper" value="open">Open Gripper</button>
-      <button class="button" name="gripper" value="close">Close Gripper</button>
+      <button id="openGripperButton" class="button" name="gripper" value="open">Open Gripper</button>
+      <button id="closeGripperButton" class="button" name="gripper" value="close">Close Gripper</button>
     </form>
   </div>
 
   <div class="controller">
-    <!-- Updated buttons with event handlers -->
-    <div class="row">
-      <button class="button" onmousedown="startSending('up')" onmouseup="stopSending()" ontouchstart="startSending('up')" ontouchend="stopSending()">Up</button>
-    </div>
-    <div class="middle-row">
-      <button class="button" onmousedown="startSending('left')" onmouseup="stopSending()" ontouchstart="startSending('left')" ontouchend="stopSending()">Left</button>
-      <div class="column">
-        <button class="button" onmousedown="startSending('forward')" onmouseup="stopSending()" ontouchstart="startSending('forward')" ontouchend="stopSending()">Forward</button>
-        <button class="button" onmousedown="startSending('backward')" onmouseup="stopSending()" ontouchstart="startSending('backward')" ontouchend="stopSending()">Backward</button>
+    <!-- Servo controls ordered from Servo 1 to Servo 4 -->
+    <div class="servo-control">
+      <label for="servo1">Servo 1:</label>
+      <div class="servo-buttons">
+        <button id="servo1-decrease" class="servo-button"
+          onmousedown="startServoAction(1, 'decrease', this)" onmouseup="stopServoAction(1, 'decrease', this)" 
+          ontouchstart="startServoAction(1, 'decrease', this)" ontouchend="stopServoAction(1, 'decrease', this)">
+          -
+        </button>
+        <button id="servo1-increase" class="servo-button"
+          onmousedown="startServoAction(1, 'increase', this)" onmouseup="stopServoAction(1, 'increase', this)" 
+          ontouchstart="startServoAction(1, 'increase', this)" ontouchend="stopServoAction(1, 'increase', this)">
+          +
+        </button>
       </div>
-      <button class="button" onmousedown="startSending('right')" onmouseup="stopSending()" ontouchstart="startSending('right')" ontouchend="stopSending()">Right</button>
     </div>
-    <div class="row">
-      <button class="button" onmousedown="startSending('down')" onmouseup="stopSending()" ontouchstart="startSending('down')" ontouchend="stopSending()">Down</button>
+    <div class="servo-control">
+      <label for="servo2">Servo 2:</label>
+      <div class="servo-buttons">
+        <button id="servo2-decrease" class="servo-button"
+          onmousedown="startServoAction(2, 'decrease', this)" onmouseup="stopServoAction(2, 'decrease', this)" 
+          ontouchstart="startServoAction(2, 'decrease', this)" ontouchend="stopServoAction(2, 'decrease', this)">
+          -
+        </button>
+        <button id="servo2-increase" class="servo-button"
+          onmousedown="startServoAction(2, 'increase', this)" onmouseup="stopServoAction(2, 'increase', this)" 
+          ontouchstart="startServoAction(2, 'increase', this)" ontouchend="stopServoAction(2, 'increase', this)">
+          +
+        </button>
+      </div>
+    </div>
+    <div class="servo-control">
+      <label for="servo3">Servo 3:</label>
+      <div class="servo-buttons">
+        <button id="servo3-decrease" class="servo-button"
+          onmousedown="startServoAction(3, 'decrease', this)" onmouseup="stopServoAction(3, 'decrease', this)" 
+          ontouchstart="startServoAction(3, 'decrease', this)" ontouchend="stopServoAction(3, 'decrease', this)">
+          -
+        </button>
+        <button id="servo3-increase" class="servo-button"
+          onmousedown="startServoAction(3, 'increase', this)" onmouseup="stopServoAction(3, 'increase', this)" 
+          ontouchstart="startServoAction(3, 'increase', this)" ontouchend="stopServoAction(3, 'increase', this)">
+          +
+        </button>
+      </div>
+    </div>
+    <div class="servo-control">
+      <label for="servo4">Servo 4:</label>
+      <div class="servo-buttons">
+        <button id="servo4-decrease" class="servo-button"
+          onmousedown="startServoAction(4, 'decrease', this)" onmouseup="stopServoAction(4, 'decrease', this)" 
+          ontouchstart="startServoAction(4, 'decrease', this)" ontouchend="stopServoAction(4, 'decrease', this)">
+          -
+        </button>
+        <button id="servo4-increase" class="servo-button"
+          onmousedown="startServoAction(4, 'increase', this)" onmouseup="stopServoAction(4, 'increase', this)" 
+          ontouchstart="startServoAction(4, 'increase', this)" ontouchend="stopServoAction(4, 'increase', this)">
+          +
+        </button>
+      </div>
     </div>
   </div>
 </body>

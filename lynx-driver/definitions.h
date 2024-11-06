@@ -22,10 +22,11 @@ extern Servo servo1, servo2, servo3, servo4, endEffector;
 extern State currentState;
 extern GripperState currentGripperState;
 extern WebServer server;
-extern String currentAction;
 
 // Servo angle variables
-extern int angle1, angle2, angle3, angle4, angleEndEffector;
+extern float currentAngle1, currentAngle2, currentAngle3, currentAngle4;
+extern float targetAngle1, targetAngle2, targetAngle3, targetAngle4;
+extern int angleEndEffector;
 
 // Function Prototypes
 bool actuatorsSetup();
@@ -33,8 +34,8 @@ bool serverSetup();
 void handleRoot();
 void handleStateChange();
 void handleGripperStateChange();
-void handleControl();
-void handleGetJointAngles();
+void handleServoControl();
+void handleGetServoAngles();
 void motorControlTask(void* parameter);
 void servoControlTask(void* parameter);
 void clientHandleTask(void* parameter);

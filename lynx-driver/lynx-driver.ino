@@ -1,7 +1,6 @@
 #include "definitions.h"
 #include "motor-driver.h"
 #include "index-handlers.h"
-#include "config.h"
 
 void setup() {
   Serial.begin(115200);
@@ -11,40 +10,13 @@ void setup() {
   }
 
   if (!serverSetup()) {
-    Serial.println("Failed to initialize server.");
+    Serial.println("Failed to start server.");
   }
 
-  xTaskCreatePinnedToCore(
-    servoControlTask,
-    "Servo Control Task",
-    10000,
-    NULL,
-    1,
-    NULL,
-    1
-  );
-
-  xTaskCreatePinnedToCore(
-    motorControlTask,
-    "Motor Control Task",
-    10000,
-    NULL,
-    1,
-    NULL,
-    1
-  );
-
-  xTaskCreatePinnedToCore(
-    clientHandleTask,
-    "Client Handle Task",
-    10000,
-    NULL,
-    1,
-    NULL,
-    0
-  );
+  xTaskCreatePinnedToCore(servoControlTask, "Servo Control Task", 4096, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(motorControlTask, "Motor Control Task", 4096, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(clientHandleTask, "Client Handle Task", 4096, NULL, 1, NULL, 0);
 }
-
 
 void loop() {
 }

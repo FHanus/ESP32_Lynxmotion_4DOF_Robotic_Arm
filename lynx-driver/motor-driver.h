@@ -20,8 +20,6 @@ void motorControlTask(void* parameter);
 void standbyState();
 void teachState();
 void operationState();
-bool inverseKinematics(Position desiredPosition, float& theta1, float& theta2, float& theta3);
-AngularPosition moveIt(Position newPosition);
 void servoControlTask(void* parameter);
 Position forwardKinematics();
 void setup();
