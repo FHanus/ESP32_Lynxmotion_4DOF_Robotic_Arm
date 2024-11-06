@@ -72,6 +72,11 @@ const char index_html[] PROGMEM = R"rawliteral(
     .column .button {
       flex: 1;
     }
+    .joint-angles {
+      text-align: center;
+      font-size: 20px;
+      margin: 10px;
+    }
   </style>
     <script>
       var intervalId;
@@ -93,10 +98,39 @@ const char index_html[] PROGMEM = R"rawliteral(
         clearInterval(intervalId);
         sendAction("stop"); // Notify server to stop the action
       }
+
+      // Function to fetch and display joint angles
+      function fetchJointAngles() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            var angles = JSON.parse(this.responseText);
+            document.getElementById("theta1").innerText = angles.theta1;
+            document.getElementById("theta2").innerText = angles.theta2;
+            document.getElementById("theta3").innerText = angles.theta3;
+            document.getElementById("theta4").innerText = angles.theta4;
+            document.getElementById("thetaEndEffector").innerText = angles.thetaEndEffector;
+          }
+        };
+        xhttp.open("GET", "/getJointAngles", true);
+        xhttp.send();
+      }
+
+      // Fetch joint angles every second
+      setInterval(fetchJointAngles, 1000);
     </script>
 </head>
 <body>
   <h1>Lynx Robot Control</h1>
+
+  <div class="joint-angles">
+    <p>Theta1: <span id="theta1">0</span>°</p>
+    <p>Theta2: <span id="theta2">0</span>°</p>
+    <p>Theta3: <span id="theta3">0</span>°</p>
+    <p>Theta4: <span id="theta4">0</span>°</p>
+    <p>Theta End Effector: <span id="thetaEndEffector">0</span>°</p>
+  </div>
+
   <div class="container">
     <form action="/setState" method="get" class="state-buttons">
       <button class="button" name="state" value="standby">Standby</button>

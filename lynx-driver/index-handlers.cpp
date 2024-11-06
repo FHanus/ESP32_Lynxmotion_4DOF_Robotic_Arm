@@ -7,6 +7,7 @@
  * @return true if successful, false otherwise.
  */
 bool serverSetup() {
+  WiFi.mode(WIFI_STA);
   WiFi.begin(SSID, PASSWORD);
   Serial.print("Connecting to Wi-Fi");
 
@@ -32,6 +33,7 @@ bool serverSetup() {
   server.on("/setState", handleStateChange);
   server.on("/setGripperState", handleGripperStateChange);
   server.on("/control", handleControl);
+  server.on("/getJointAngles", handleGetJointAngles);
 
   server.begin();
   return true;
@@ -81,8 +83,12 @@ void handleGripperStateChange() {
   String gripperState = server.arg("gripper");
   if (gripperState == "open") {
     currentGripperState = GRIPPER_OPEN;
+    // Set end effector to open position
+    angleEndEffector = 180; // Example value, adjust as needed
   } else if (gripperState == "close") {
     currentGripperState = GRIPPER_CLOSE;
+    // Set end effector to closed position
+    angleEndEffector = 0; // Example value, adjust as needed
   } else {
     server.send(400, "text/plain", "Invalid gripper state.");
     return;
@@ -106,4 +112,18 @@ void handleControl() {
   } else {
     server.send(400, "text/plain", "Bad Request");
   }
+}
+
+/**
+ * @brief Handles requests to get joint angles.
+ */
+void handleGetJointAngles() {
+  String json = "{";
+  json += "\"theta1\":" + String(angle1) + ",";
+  json += "\"theta2\":" + String(angle2) + ",";
+  json += "\"theta3\":" + String(angle3) + ",";
+  json += "\"theta4\":" + String(angle4) + ",";
+  json += "\"thetaEndEffector\":" + String(angleEndEffector);
+  json += "}";
+  server.send(200, "application/json", json);
 }

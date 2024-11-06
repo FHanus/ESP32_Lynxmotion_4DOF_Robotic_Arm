@@ -4,13 +4,13 @@ clc;
 
 %% Lynx Robot Parameters
 % Link lengths
-L1 = 0.1; 
-L2 = 0.1; 
-L3 = 0.05;
+L1 = 0.146; 
+L2 = 0.223; 
+L3 = 0.06;
 
 % Initial position
 X = 0.15; 
-Y = 0.1;  
+Y = 0.2;  
 phi = 0;
 
 %% Create Figure and Sliders
@@ -30,7 +30,7 @@ title(ax, '3 DOF Lynx Sim');
 
 sliderX = uicontrol('Parent', fig, 'Style', 'slider', ...
     'Units', 'normalized', 'Position', [0.25, 0.02, 0.5, 0.03], ...
-    'Min', -0.15, 'Max', 0.25, 'Value', X);
+    'Min', -0.15, 'Max', 0.55, 'Value', X);
 
 sliderY = uicontrol('Parent', fig, 'Style', 'slider', ...
     'Units', 'normalized', 'Position', [0.02, 0.25, 0.03, 0.5], ...

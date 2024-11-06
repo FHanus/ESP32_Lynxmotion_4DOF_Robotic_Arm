@@ -7,19 +7,44 @@ void setup() {
   Serial.begin(115200);
 
   if (!actuatorsSetup()) {
-    Serial.println("Error initializing actuators.");
+    Serial.println("Failed to initialize actuators.");
   }
 
   if (!serverSetup()) {
-    Serial.println("Error setting up server.");
+    Serial.println("Failed to initialize server.");
   }
 
-  // Motor control task pinned to core 0
-  xTaskCreatePinnedToCore(motorControlTask, "MotorControl", 10000, NULL, 1, NULL, 0);
+  xTaskCreatePinnedToCore(
+    servoControlTask,
+    "Servo Control Task",
+    10000,
+    NULL,
+    1,
+    NULL,
+    1
+  );
 
-  // Client handle task pinned to core 1
-  xTaskCreatePinnedToCore(clientHandleTask, "ClientHandle", 10000, NULL, 1, NULL, 1);
+  xTaskCreatePinnedToCore(
+    motorControlTask,
+    "Motor Control Task",
+    10000,
+    NULL,
+    1,
+    NULL,
+    1
+  );
+
+  xTaskCreatePinnedToCore(
+    clientHandleTask,
+    "Client Handle Task",
+    10000,
+    NULL,
+    1,
+    NULL,
+    0
+  );
 }
+
 
 void loop() {
 }

@@ -10,5 +10,6 @@ void handleRoot();
 void handleStateChange();
 void handleGripperStateChange();
 void handleControl();
+void handleGetJointAngles();
 
 #endif // INDEX_HANDLERS_H
