@@ -1,0 +1,36 @@
+﻿Designator,Footprint,Value,Quantity,Link
+"C1, C8",603,1uF,2,https://www.mouser.co.uk/ProductDetail/KYOCERA-AVX/06036C105MAT2A?qs=sGAEpiMZZMukHu%252BjC5l7YWqgEgI%252Bc%2F5WVgxbtrpnZ%252Bc%3D
+C10,603,10pF,1,https://www.mouser.co.uk/ProductDetail/KYOCERA-AVX/0603YA100JAT2A?qs=sGAEpiMZZMukHu%252BjC5l7YduOrE6ID6FFezfbEpot2u0%3D
+"C11, C12",603,10uF 25V,2,https://www.mouser.co.uk/ProductDetail/Murata-Electronics/GRM188R61E106KA73D?qs=5aG0NVq1C4z8ebxPkQZf9A%3D%3D
+"C13, C14",402,22p,2,https://www.mouser.co.uk/ProductDetail/KYOCERA-AVX/04025A220KAT2A?qs=HeiVa0IqVQ0JQWO3%252BNTEFw%3D%3D
+C16,402,22u,1,https://www.mouser.co.uk/ProductDetail/TAIYO-YUDEN/MEASP105CB5226MFNA01?qs=Z%252BL2brAPG1JzbeV7hVQ1dw%3D%3D
+C17,402,10u,1,https://www.mouser.co.uk/ProductDetail/Murata-Electronics/GRM155R60J106ME05J?qs=d0WKAl%252BL4KZLYokHNDRa%252Bw%3D%3D
+"C2, C3",402,100n,2,https://www.mouser.co.uk/ProductDetail/KYOCERA-AVX/04025C104JAT2A?qs=yqaQSyyJnNjAUYBPnTRwrw%3D%3D
+"C4, C6",1210,10uF 100V,2,https://www.mouser.co.uk/ProductDetail/Walsin/1210B106K160CT?qs=ZrPdAQfJ6DOm5kowd6kHgg%3D%3D
+"C5, C7, C9",603,100nF 100V,3,https://www.mouser.co.uk/ProductDetail/TAIYO-YUDEN/MAJCH168BB7104KTEA01?qs=ZcfC38r4PovaTBrG0IdezQ%3D%3D
+CR1,SOT89_AZ1117_DIO,AZ1117CR-3.3TRG1,1,https://www.mouser.co.uk/ProductDetail/Diodes-Incorporated/AZ1117CR-3.3TRG1?qs=FKu9oBikfSlEg7waHw2tMw%3D%3D
+"D1, D2",603,LED,2,https://www.mouser.co.uk/ProductDetail/VCC/LSM0603412V?qs=%252BEew9%252B0nqrCIKpXilSWEhA%3D%3D
+"D5, D6",PMEG3020EH_115_DIO_PMEG3020EH_115,PMEG3020EH_115,2,https://www.mouser.co.uk/ProductDetail/Nexperia/PMEG3020EH115?qs=LOCUfHb8d9sEqW1%2FaaOfTw%3D%3D
+FB1,603,MAF1608GAD121LTAH0,1,https://www.mouser.co.uk/ProductDetail/TDK/MAF1608GAD121LTAH0?qs=BJlw7L4Cy7%252BAV2UNpB9ptg%3D%3D
+"J1, J2, J3, J5, J7",HDRV3W66P0X254_1X3_762X249X1042P,22-28-4034,5,
+J18,SHDR10W70P0X254_1X10_2580X250X865P,M20-7821042,1,
+J4,1727010,1727010,1,
+J6,USB_C_Receptacle_GCT_USB4085,USB_C_Receptacle_USB2.0,1,
+L1,NRS4018T100MDGJ,10uH,1,https://www.mouser.co.uk/ProductDetail/TAIYO-YUDEN/NRS4018T100MDGJ?qs=PzICbMaShUeiyHfvjt6KEw%3D%3D
+"LED1, LED2, LED3, LED4",TLHG5420ASZ,TLHG5420-ASZ,4,
+"Q1, Q2",TNPN_SOT-23_MCC,MMSS8050-H-TP,2,https://www.mouser.co.uk/ProductDetail/Micro-Commercial-Components-MCC/MMSS8050-H-TP?qs=sGAEpiMZZMvplms98TlKYxWN4uhlXivEdtknTRVx84M%3D
+"Q3, Q4",SOT95P237X112-3N,SQ2361AEES-T1_GE3,2,https://www.mouser.co.uk/ProductDetail/Vishay-Siliconix/SQ2361AEES-T1_GE3?qs=RG9shxi6bw25HGQRAsqosw%3D%3D
+"R1, R3, R7",603,10k,3,https://www.mouser.co.uk/ProductDetail/Vishay-Dale/CRCW060310K0FKEI?qs=3qWEzBg5KnKofE%252B8acPBRA%3D%3D
+"R10, R15, R2, R20, R9",402,10k,5,https://www.mouser.co.uk/ProductDetail/Vishay-Dale/CRCW040210K0FKEDC?qs=E3Y5ESvWgWPiNLcGzwCGPg%3D%3D
+R11,603,100k,1,https://www.mouser.co.uk/ProductDetail/Vishay-Dale/CRCW0603100KFKEA?qs=6dqgS%252BKntICWHMMdIzt5%2FQ%3D%3D
+R12,603,82k,1,https://www.mouser.co.uk/ProductDetail/Vishay-Dale/CRCW060382K0JNTA?qs=rGO4O3Mig4iN6xH9En8Jtg%3D%3D
+"R13, R14, R4, R5",402,270R,4,https://www.mouser.co.uk/ProductDetail/Vishay-Dale/CRCW0402270RJNED?qs=hD42E%2F8yzjppfPCN8ibiOQ%3D%3D
+"R16, R17",402,5k1,2,https://www.mouser.co.uk/ProductDetail/Vishay-Dale/CRCW04025K10FKED?qs=s0g2FHNyNFj8r6Uw5EJZ%2Fw%3D%3D
+R18,603,16k,1,https://www.mouser.co.uk/ProductDetail/Vishay-Dale/CRCW060316K2FKEA?qs=CX1yuK990BZ4DBW0FOl4aQ%3D%3D
+R19,603,270R,1,https://www.mouser.co.uk/ProductDetail/Vishay-Dale/CRCW0603270RJNEA?qs=RGUidceLw3LNCc1SS6sL4Q%3D%3D
+R6,1206,2k7,1,https://www.mouser.co.uk/ProductDetail/Vishay-Dale/CRCW12062K74FKEAC?qs=E3Y5ESvWgWPGmAth8QhpAQ%3D%3D
+R8,603,66k5,1,https://www.mouser.co.uk/ProductDetail/Vishay-Dale/CRCW060366K5FKEA?qs=Q5Ogy3HFkM3YMIzVCAxtqQ%3D%3D
+U1,QFN-24-1EP_4x4mm_P0.5mm_EP2.6x2.6mm,CP2102N-A02-GQFN24R ,1,https://www.mouser.co.uk/ProductDetail/Silicon-Labs/CP2102N-A02-GQFN24R?qs=u16ybLDytRaIVBf0X4zL0g%3D%3D
+U2,ESP32-S3-WROOM-1-N8R8_XCVR_ESP32S3WROOM1N8R8,ESP32-S3-WROOM-1-N8R8,1,https://www.mouser.co.uk/ProductDetail/Espressif-Systems/ESP32-S3-WROOM-1-N8R8?qs=sGAEpiMZZMu3sxpa5v1qrgCv7%252BoaLKgfH7xAI5zn0GU%3D
+U4,SOP50P490X110-17N,LT8619,1,https://www.digikey.co.uk/en/products/detail/analog-devices-inc/LT8619EMSE-PBF/8275872?s=N4IgTCBcDaIDIBUAcA2AjATgKIFkDKWAxAAoBCAYiALoC%2BQA
+U5,BX0033,BX0033,1,https://www.mouser.co.uk/ProductDetail/Bulgin/BX0033?qs=mZhjc5a7U8zJAJTATpoz8g%3D%3D
