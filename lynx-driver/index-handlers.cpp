@@ -3,6 +3,8 @@
 #include "config.h"
 #include "motor-driver.h"
 
+extern float currentAngle1, currentAngle2, currentAngle3, currentAngle4;
+
 String currentStateToString(State state) {
   switch (state) {
     case STANDBY:
@@ -51,19 +53,16 @@ bool serverSetup() {
   server.on("/", handleRoot);
   server.on("/setState", handleStateChange);
   server.on("/setGripperState", handleGripperStateChange);
-  server.on("/servoControl", handleServoControl); 
+  server.on("/servoControl", handleServoControl);
   server.on("/getServoAngles", handleGetServoAngles);
-  server.onNotFound(handleRoot); 
+  server.onNotFound(handleRoot);
 
   server.begin();
   return true;
 }
 
 void clientHandleTask(void* parameter) {
-  while (true) {
-    server.handleClient();
-    vTaskDelay(pdMS_TO_TICKS(10));
-  }
+  // Not needed in the simplified version.
 }
 
 void handleRoot() {
@@ -77,6 +76,8 @@ void handleStateChange() {
   String state = server.arg("state");
   if (state == "standby") {
     currentState = STANDBY;
+    recordCount = 0;
+    currentReplayIndex = 0;
   } else if (state == "teach") {
     currentState = TEACH;
   } else if (state == "operate") {
@@ -93,14 +94,16 @@ void handleGripperStateChange() {
   String gripperState = server.arg("gripper");
   if (gripperState == "open") {
     currentGripperState = GRIPPER_OPEN;
-    angleEndEffector = 180;
+    angleEndEffector = 70;
   } else if (gripperState == "close") {
     currentGripperState = GRIPPER_CLOSE;
-    angleEndEffector = 0;
+    angleEndEffector = 160;
   } else {
     server.send(400, "text/plain", "Invalid gripper state.");
     return;
   }
+
+  endEffector.write(angleEndEffector);
 
   if (currentState == TEACH) {
     if (recordPosition()) {
@@ -113,68 +116,54 @@ void handleGripperStateChange() {
 }
 
 void handleServoControl() {
-  if (server.hasArg("servo") && server.hasArg("action")) {
-    int servoId = server.arg("servo").toInt();
-    String action = server.arg("action");
-    float delta = 10.0f; 
-
-    if (servoId < 1 || servoId > 4) {
-      server.send(400, "text/plain", "Invalid servo ID.");
-      return;
-    }
-
-    if (currentState != TEACH) {
-      server.send(403, "text/plain", "Servo control only allowed in TEACH mode.");
-      return;
-    }
-
-    if (action == "increase") {
-      switch (servoId) {
-        case 1:
-          targetAngle1 += delta;
-          if (targetAngle1 > 180) targetAngle1 = 180;
-          break;
-        case 2:
-          targetAngle2 += delta;
-          if (targetAngle2 > 180) targetAngle2 = 180;
-          break;
-        case 3:
-          targetAngle3 += delta;
-          if (targetAngle3 > 180) targetAngle3 = 180;
-          break;
-        case 4:
-          targetAngle4 += delta;
-          if (targetAngle4 > 180) targetAngle4 = 180;
-          break;
-      }
-    } else if (action == "decrease") {
-      switch (servoId) {
-        case 1:
-          targetAngle1 -= delta;
-          if (targetAngle1 < 0) targetAngle1 = 0;
-          break;
-        case 2:
-          targetAngle2 -= delta;
-          if (targetAngle2 < 0) targetAngle2 = 0;
-          break;
-        case 3:
-          targetAngle3 -= delta;
-          if (targetAngle3 < 0) targetAngle3 = 0;
-          break;
-        case 4:
-          targetAngle4 -= delta;
-          if (targetAngle4 < 0) targetAngle4 = 0;
-          break;
-      }
-    } else {
-      server.send(400, "text/plain", "Invalid action.");
-      return;
-    }
-
-    server.send(200, "text/plain", "OK");
-  } else {
+  if (!server.hasArg("servo") || !server.hasArg("action")) {
     server.send(400, "text/plain", "Bad Request");
+    return;
   }
+
+  int servoId = server.arg("servo").toInt();
+  String action = server.arg("action");
+
+  if (servoId < 1 || servoId > 4) {
+    server.send(400, "text/plain", "Invalid servo ID.");
+    return;
+  }
+
+  if (currentState != TEACH) {
+    server.send(403, "text/plain", "Servo control only allowed in TEACH mode.");
+    return;
+  }
+
+  float delta = 5.0f; // Smaller increment for smoother control.
+
+  float* targetAngle = nullptr;
+  switch (servoId) {
+    case 1: targetAngle = &currentAngle1; break;
+    case 2: targetAngle = &currentAngle2; break;
+    case 3: targetAngle = &currentAngle3; break;
+    case 4: targetAngle = &currentAngle4; break;
+  }
+
+  if (action == "increase") {
+    *targetAngle += delta;
+    if (*targetAngle > 180) *targetAngle = 180;
+  } else if (action == "decrease") {
+    *targetAngle -= delta;
+    if (*targetAngle < 0) *targetAngle = 0;
+  } else if (action == "stop") {
+    // No action needed for stop here since we apply angles immediately.
+  } else {
+    server.send(400, "text/plain", "Invalid action.");
+    return;
+  }
+
+  // Write updated angles immediately:
+  servo1.write((int)currentAngle1);
+  servo2.write((int)currentAngle2);
+  servo3.write((int)currentAngle3);
+  servo4.write((int)currentAngle4);
+
+  server.send(200, "text/plain", "OK");
 }
 
 void handleGetServoAngles() {

@@ -13,34 +13,19 @@ void setup() {
     Serial.println("Failed to start server.");
   }
 
-  xTaskCreatePinnedToCore(
-    motorControlTask,         // Task
-    "Motor Control Task",     // Name
-    4096,                     // Stack size
-    NULL,                     // Task input
-    1,                        // Priority
-    NULL,                     // Task handle
-    1);                       // Core
+  // No separate tasks needed for servo control now.
+  // We'll handle control directly in handleServoControl and loop.
 
-  xTaskCreatePinnedToCore(
-    servoControlTask,         // Task
-    "Servo Control Task",     // Name
-    4096,                     // Stack size
-    NULL,                     // Task input
-    1,                        // Priority
-    NULL,                     // Task handle
-    1);                       // Core n
-
-  xTaskCreatePinnedToCore(
-    clientHandleTask,         // Task
-    "Client Handle Task",     // Name
-    4096,                     // Stack size
-    NULL,                     // Task input
-    1,                        // Priority 
-    NULL,                     // Task handle
-    0);                       // Core 
+  // Just run the server in the loop.
 }
 
 void loop() {
-  vTaskDelay(pdMS_TO_TICKS(1000));
+  server.handleClient();
+
+  // If in OPERATION mode, replay positions if needed
+  if (currentState == OPERATE) {
+    runReplayCycle();
+  }
+
+  delay(10);
 }
