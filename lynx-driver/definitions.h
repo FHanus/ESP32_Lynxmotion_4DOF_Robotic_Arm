@@ -6,7 +6,7 @@
 #include <ESP32Servo.h>
 #include "motor-driver.h" 
 
-static const int SERVO_PINS[5] = {38, 39, 40, 41, 42};
+static const int SERVO_PINS[5] = {2, 3, 4, 5, 1};
 
 static const float L1 = 0.146f;
 static const float L2 = 0.223f;

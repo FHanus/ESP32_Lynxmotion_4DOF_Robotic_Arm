@@ -10,16 +10,6 @@ bool actuatorsSetup() {
   if (!servo4.attach(SERVO_PINS[3])) success = false;
   if (!endEffector.attach(SERVO_PINS[4])) success = false;
 
-  currentAngle1 = 90.0f;
-  currentAngle2 = 90.0f;
-  currentAngle3 = 90.0f;
-  currentAngle4 = 90.0f;
-
-  targetAngle1 = 90.0f;
-  targetAngle2 = 90.0f;
-  targetAngle3 = 90.0f;
-  targetAngle4 = 90.0f;
-
   angleEndEffector = 0;
   endEffector.write(angleEndEffector);
 
@@ -42,12 +32,12 @@ void motorControlTask(void* parameter) {
         standbyState();
         break;
     }
-    vTaskDelay(pdMS_TO_TICKS(50));
+    vTaskDelay(pdMS_TO_TICKS(100));
   }
 }
 
 void servoControlTask(void* parameter) {
-  const float step = 1.0f;
+  const float step = 10.0f;
 
   while (true) {
     if (currentAngle1 < targetAngle1) {
@@ -88,12 +78,14 @@ void servoControlTask(void* parameter) {
 
     endEffector.write(angleEndEffector);
 
-    vTaskDelay(pdMS_TO_TICKS(20));
+    Serial.printf("  Angles: %.1f, %.1f, %.1f, %.1f\n", currentAngle1, currentAngle2, currentAngle3, currentAngle4);
+
+    vTaskDelay(pdMS_TO_TICKS(75));
   }
 }
 
 void standbyState() {
-  Serial.println("State: Standby - Holding positions");
+  //Serial.println("State: Standby - Holding positions");
   
   recordCount = 0;
   currentReplayIndex = 0;
@@ -102,16 +94,16 @@ void standbyState() {
   targetAngle3 = currentAngle3;
   targetAngle4 = currentAngle4;
   
-  Serial.println("All recorded positions have been cleared.");
+  //Serial.println("All recorded positions have been cleared.");
 }
 
 void operationState() {
-  Serial.println("State: Operate - Replaying positions");
+  //Serial.println("State: Operate - Replaying positions");
   replayPositions();
 }
 
 void teachState() {
-  Serial.println("State: Teach - Monitoring EE state changes");
+  //Serial.println("State: Teach - Monitoring EE state changes");
 }
 
 bool recordPosition() {
@@ -137,6 +129,41 @@ bool recordPosition() {
 }
 
 void replayPositions() {
+
+  angleEndEffector = 0;
+
+  // Prefill test positions
+  recordCount = 4;  // Set to number of test positions
+  
+  // Position 1
+  positionRecords[0].angle1 = 100.0f;
+  positionRecords[0].angle2 = 100.0f;
+  positionRecords[0].angle3 = 100.0f;
+  positionRecords[0].angle4 = 100.0f;
+  positionRecords[0].eeState = GRIPPER_OPEN;
+
+  // Position 2
+  positionRecords[1].angle1 = 105.0f;
+  positionRecords[1].angle2 = 105.0f;
+  positionRecords[1].angle3 = 105.0;
+  positionRecords[1].angle4 = 105.0f;
+  positionRecords[1].eeState = GRIPPER_CLOSE;
+
+  // Position 3
+  positionRecords[2].angle1 = 110.0f;
+  positionRecords[2].angle2 = 110.0f;
+  positionRecords[2].angle3 = 110.0f;
+  positionRecords[2].angle4 = 110.0f;
+  positionRecords[2].eeState = GRIPPER_OPEN;
+
+  // Position 4
+  positionRecords[3].angle1 = 115.0f;
+  positionRecords[3].angle2 = 115.0f;
+  positionRecords[3].angle3 = 115.0f;
+  positionRecords[3].angle4 = 115.0f;
+  positionRecords[3].eeState = GRIPPER_CLOSE;
+
+
   if (recordCount == 0) {
     Serial.println("No positions to replay.");
     return;
@@ -160,11 +187,11 @@ void replayPositions() {
       if (abs(currentAngle2 - targetAngle2) > 0.5f) reached = false;
       if (abs(currentAngle3 - targetAngle3) > 0.5f) reached = false;
       if (abs(currentAngle4 - targetAngle4) > 0.5f) reached = false;
-      vTaskDelay(pdMS_TO_TICKS(50));
+      vTaskDelay(pdMS_TO_TICKS(20));
     }
-    angleEndEffector = (rec.eeState == GRIPPER_OPEN) ? 180 : 0;
+    angleEndEffector = (rec.eeState == GRIPPER_OPEN) ? 180 : 70;
 
-    vTaskDelay(pdMS_TO_TICKS(500));
+    vTaskDelay(pdMS_TO_TICKS(2000));
   }
 
   Serial.println("Completed replaying positions.");

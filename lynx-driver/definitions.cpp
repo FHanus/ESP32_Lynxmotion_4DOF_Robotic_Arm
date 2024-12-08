@@ -10,13 +10,13 @@ int angleEndEffector = 0;
 WebServer server(80);
 
 float currentAngle1 = 90.0f; 
-float currentAngle2 = 90.0f; 
-float currentAngle3 = 90.0f; 
+float currentAngle2 = 110.0f; 
+float currentAngle3 = 135.0f; 
 float currentAngle4 = 90.0f; 
 
 float targetAngle1 = 90.0f; 
-float targetAngle2 = 90.0f; 
-float targetAngle3 = 90.0f; 
+float targetAngle2 = 110.0f; 
+float targetAngle3 = 135.0f; 
 float targetAngle4 = 90.0f; 
 
 PositionRecord positionRecords[10];
