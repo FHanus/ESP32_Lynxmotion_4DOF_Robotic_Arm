@@ -10,12 +10,11 @@ bool actuatorsSetup() {
   if (!endEffector.attach(SERVO_PINS[4])) success = false;
   
   endEffector.write(angleEndEffector);
-
   return success;
 }
 
 bool recordPosition() {
-  if (recordCount >= 10) {
+  if (recordCount >= 50) {
     Serial.println("Position record limit reached.");
     return false;
   }

@@ -55,6 +55,8 @@ bool serverSetup() {
   server.on("/setGripperState", handleGripperStateChange);
   server.on("/servoControl", handleServoControl);
   server.on("/getServoAngles", handleGetServoAngles);
+  server.on("/recordPosition", handleRecordPosition);
+
   server.onNotFound(handleRoot);
 
   server.begin();
@@ -104,12 +106,6 @@ void handleGripperStateChange() {
   }
 
   endEffector.write(angleEndEffector);
-
-  if (currentState == TEACH) {
-    if (recordPosition()) {
-      Serial.println("Position recorded due to EE state change.");
-    }
-  }
 
   server.sendHeader("Location", "/");
   server.send(303);
@@ -175,3 +171,28 @@ void handleGetServoAngles() {
   json += "}";
   server.send(200, "application/json", json);
 }
+
+void handleRecordPosition() {
+  if (currentState != TEACH) {
+    // If we are not in TEACH mode, no recording allowed.
+    // Just ignore and go back to the main page.
+    server.sendHeader("Location", "/");
+    server.send(303);
+    return;
+  }
+
+  // Try to record position. If it fails, it's likely because we reached the max count.
+  if (!recordPosition()) {
+    // Instead of sending an error, just redirect back to the main page silently.
+    server.sendHeader("Location", "/");
+    server.send(303);
+    return;
+  }
+
+  // If successful, also go back to the main page as before.
+  server.sendHeader("Location", "/");
+  server.send(303);
+  Serial.println("Waypoint recorded by user request.");
+}
+
+

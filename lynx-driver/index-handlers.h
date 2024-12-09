@@ -10,5 +10,6 @@ void handleStateChange();
 void handleGripperStateChange();
 void handleServoControl(); 
 void handleGetServoAngles();
+void handleRecordPosition();
 
 #endif // INDEX_HANDLERS_H

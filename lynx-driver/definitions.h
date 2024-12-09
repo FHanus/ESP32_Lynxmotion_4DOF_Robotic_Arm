@@ -27,7 +27,7 @@ extern WebServer server;
 extern float currentAngle1, currentAngle2, currentAngle3, currentAngle4;
 extern int angleEndEffector;
 
-extern PositionRecord positionRecords[10];
+extern PositionRecord positionRecords[50];
 extern int recordCount;
 extern int currentReplayIndex;
 

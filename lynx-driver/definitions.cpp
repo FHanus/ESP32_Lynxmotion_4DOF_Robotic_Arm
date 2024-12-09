@@ -11,6 +11,6 @@ float currentAngle2 = 110.0f;
 float currentAngle3 = 135.0f;
 float currentAngle4 = 90.0f;
 
-PositionRecord positionRecords[10];
+PositionRecord positionRecords[50];
 int recordCount = 0;
 int currentReplayIndex = 0;

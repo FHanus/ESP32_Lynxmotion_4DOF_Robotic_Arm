@@ -5,7 +5,7 @@ const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Lynx Robot Control</title>
+  <title>Lynx Robot Control (F.H.)</title>
   <style>
     body, html {
       margin: 0;
@@ -27,9 +27,10 @@ const char index_html[] PROGMEM = R"rawliteral(
     }
     .state-buttons {
       display: flex;
-      justify-content: space-around;
       width: 100%;
       margin-bottom: 20px;
+      /* Consider changing this to center to avoid spacing around a single button */
+      justify-content: center;
     }
     .button {
       padding: 15px 25px;
@@ -42,7 +43,7 @@ const char index_html[] PROGMEM = R"rawliteral(
       cursor: pointer;
       margin: 5px;
       user-select: none;
-      flex: 1;
+      flex: 1; /* This allows the button to expand to fill the width if it's the only element */
     }
     .button:hover {
       background-color: #006f9b;
@@ -149,8 +150,14 @@ const char index_html[] PROGMEM = R"rawliteral(
     </form>
   </div>
 
+  <div class="container">
+    <!-- Make this also a state-buttons container to match styling -->
+    <form action="/recordPosition" method="get" class="state-buttons">
+      <button class="button" type="submit">Save Waypoint</button>
+    </form>
+  </div>
+
   <div class="controller">
-    <!-- Servo controls ordered from Servo 1 to Servo 4 -->
     <div class="servo-control">
       <label for="servo1">Servo 1:</label>
       <div class="servo-buttons">
