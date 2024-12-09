@@ -58,7 +58,7 @@ void runReplayCycle() {
       currentAngle2 = rec.angle2;
       currentAngle3 = rec.angle3;
       currentAngle4 = rec.angle4;
-      angleEndEffector = (rec.eeState == GRIPPER_OPEN) ? 70 : 160;
+      angleEndEffector = (rec.eeState == GRIPPER_OPEN) ? 40 : 160;
 
       // Write angles directly
       servo1.write((int)currentAngle1);

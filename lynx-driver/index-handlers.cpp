@@ -96,7 +96,7 @@ void handleGripperStateChange() {
   String gripperState = server.arg("gripper");
   if (gripperState == "open") {
     currentGripperState = GRIPPER_OPEN;
-    angleEndEffector = 70;
+    angleEndEffector = 40;
   } else if (gripperState == "close") {
     currentGripperState = GRIPPER_CLOSE;
     angleEndEffector = 160;
