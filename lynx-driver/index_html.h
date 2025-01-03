@@ -1,7 +1,7 @@
 #ifndef INDEX_HTML_H
 #define INDEX_HTML_H
 
-const char index_html[] PROGMEM = R"rawliteral(
+static const char INDEX_HTML[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html>
 <head>
@@ -29,7 +29,6 @@ const char index_html[] PROGMEM = R"rawliteral(
       display: flex;
       width: 100%;
       margin-bottom: 20px;
-      /* Consider changing this to center to avoid spacing around a single button */
       justify-content: center;
     }
     .button {
@@ -43,7 +42,7 @@ const char index_html[] PROGMEM = R"rawliteral(
       cursor: pointer;
       margin: 5px;
       user-select: none;
-      flex: 1; /* This allows the button to expand to fill the width if it's the only element */
+      flex: 1;
     }
     .button:hover {
       background-color: #006f9b;
@@ -92,7 +91,7 @@ const char index_html[] PROGMEM = R"rawliteral(
         'teach': document.getElementById('teachButton'),
         'operate': document.getElementById('operateButton')
       };
-      if (currentState in stateButtons) {
+      if (stateButtons[currentState]) {
         stateButtons[currentState].classList.add('selected');
       }
 
@@ -100,7 +99,7 @@ const char index_html[] PROGMEM = R"rawliteral(
         'open': document.getElementById('openGripperButton'),
         'close': document.getElementById('closeGripperButton')
       };
-      if (currentGripperState in gripperButtons) {
+      if (gripperButtons[currentGripperState]) {
         gripperButtons[currentGripperState].classList.add('selected');
       }
     }
@@ -151,7 +150,6 @@ const char index_html[] PROGMEM = R"rawliteral(
   </div>
 
   <div class="container">
-    <!-- Make this also a state-buttons container to match styling -->
     <form action="/recordPosition" method="get" class="state-buttons">
       <button class="button" type="submit">Save Waypoint</button>
     </form>
@@ -162,12 +160,12 @@ const char index_html[] PROGMEM = R"rawliteral(
       <label for="servo1">Servo 1:</label>
       <div class="servo-buttons">
         <button id="servo1-decrease" class="servo-button"
-          onmousedown="startServoAction(1, 'decrease', this)" onmouseup="stopServoAction(1, 'decrease', this)" 
+          onmousedown="startServoAction(1, 'decrease', this)" onmouseup="stopServoAction(1, 'decrease', this)"
           ontouchstart="startServoAction(1, 'decrease', this)" ontouchend="stopServoAction(1, 'decrease', this)">
           -
         </button>
         <button id="servo1-increase" class="servo-button"
-          onmousedown="startServoAction(1, 'increase', this)" onmouseup="stopServoAction(1, 'increase', this)" 
+          onmousedown="startServoAction(1, 'increase', this)" onmouseup="stopServoAction(1, 'increase', this)"
           ontouchstart="startServoAction(1, 'increase', this)" ontouchend="stopServoAction(1, 'increase', this)">
           +
         </button>
@@ -177,12 +175,12 @@ const char index_html[] PROGMEM = R"rawliteral(
       <label for="servo2">Servo 2:</label>
       <div class="servo-buttons">
         <button id="servo2-decrease" class="servo-button"
-          onmousedown="startServoAction(2, 'decrease', this)" onmouseup="stopServoAction(2, 'decrease', this)" 
+          onmousedown="startServoAction(2, 'decrease', this)" onmouseup="stopServoAction(2, 'decrease', this)"
           ontouchstart="startServoAction(2, 'decrease', this)" ontouchend="stopServoAction(2, 'decrease', this)">
           -
         </button>
         <button id="servo2-increase" class="servo-button"
-          onmousedown="startServoAction(2, 'increase', this)" onmouseup="stopServoAction(2, 'increase', this)" 
+          onmousedown="startServoAction(2, 'increase', this)" onmouseup="stopServoAction(2, 'increase', this)"
           ontouchstart="startServoAction(2, 'increase', this)" ontouchend="stopServoAction(2, 'increase', this)">
           +
         </button>
@@ -192,12 +190,12 @@ const char index_html[] PROGMEM = R"rawliteral(
       <label for="servo3">Servo 3:</label>
       <div class="servo-buttons">
         <button id="servo3-decrease" class="servo-button"
-          onmousedown="startServoAction(3, 'decrease', this)" onmouseup="stopServoAction(3, 'decrease', this)" 
+          onmousedown="startServoAction(3, 'decrease', this)" onmouseup="stopServoAction(3, 'decrease', this)"
           ontouchstart="startServoAction(3, 'decrease', this)" ontouchend="stopServoAction(3, 'decrease', this)">
           -
         </button>
         <button id="servo3-increase" class="servo-button"
-          onmousedown="startServoAction(3, 'increase', this)" onmouseup="stopServoAction(3, 'increase', this)" 
+          onmousedown="startServoAction(3, 'increase', this)" onmouseup="stopServoAction(3, 'increase', this)"
           ontouchstart="startServoAction(3, 'increase', this)" ontouchend="stopServoAction(3, 'increase', this)">
           +
         </button>
@@ -207,12 +205,12 @@ const char index_html[] PROGMEM = R"rawliteral(
       <label for="servo4">Servo 4:</label>
       <div class="servo-buttons">
         <button id="servo4-decrease" class="servo-button"
-          onmousedown="startServoAction(4, 'decrease', this)" onmouseup="stopServoAction(4, 'decrease', this)" 
+          onmousedown="startServoAction(4, 'decrease', this)" onmouseup="stopServoAction(4, 'decrease', this)"
           ontouchstart="startServoAction(4, 'decrease', this)" ontouchend="stopServoAction(4, 'decrease', this)">
           -
         </button>
         <button id="servo4-increase" class="servo-button"
-          onmousedown="startServoAction(4, 'increase', this)" onmouseup="stopServoAction(4, 'increase', this)" 
+          onmousedown="startServoAction(4, 'increase', this)" onmouseup="stopServoAction(4, 'increase', this)"
           ontouchstart="startServoAction(4, 'increase', this)" ontouchend="stopServoAction(4, 'increase', this)">
           +
         </button>

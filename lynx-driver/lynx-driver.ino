@@ -1,31 +1,29 @@
-#include "definitions.h"
-#include "motor-driver.h"
-#include "index-handlers.h"
+#include <Arduino.h>
+#include "globals.h"
 
-void setup() {
-  Serial.begin(115200);
-  
-  if (!actuatorsSetup()) {
-    Serial.println("Failed to initialize actuators.");
-  }
+void setup() 
+{
+    Serial.begin(115200);
+    delay(100);
 
-  if (!serverSetup()) {
-    Serial.println("Failed to start server.");
-  }
+    if (!SetupActuators()) {
+        Serial.println("Failed to initialize actuators.");
+    }
 
-  // No separate tasks needed for servo control now.
-  // We'll handle control directly in handleServoControl and loop.
-
-  // Just run the server in the loop.
+    if (!SetupWebServer()) {
+        Serial.println("Failed to start server.");
+    }
 }
 
-void loop() {
-  server.handleClient();
+void loop() 
+{
+    // Let the web server handle any incoming client requests
+    g_server.handleClient();
 
-  // If in OPERATION mode, replay positions if needed
-  if (currentState == OPERATE) {
-    runReplayCycle();
-  }
+    // If the robot is in OPERATE mode, continuously run the replay cycle
+    if (g_robotState == RobotState::Operate) {
+        RunReplayCycle();
+    }
 
-  delay(10);
+    delay(10);
 }
