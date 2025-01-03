@@ -62,7 +62,6 @@ bool SetupActuators()
     bool success = true;
 
     // Attach all servo objects to their respective pins.
-    // If attach() fails, it returns false.
     if (!g_servo1->attach(SERVO_PINS[0])) success = false;
     if (!g_servo2->attach(SERVO_PINS[1])) success = false;
     if (!g_servo3->attach(SERVO_PINS[2])) success = false;
@@ -81,20 +80,17 @@ bool SetupActuators()
 
 bool SetupWebServer()
 {
-    // Begin Wi-Fi connection in STA mode
     WiFi.mode(WIFI_STA);
     WiFi.begin(g_wifiSSID, g_wifiPassword);
 
     Serial.print("Connecting to Wi-Fi");
     unsigned long startAttemptTime = millis();
 
-    // Attempt to connect for up to 10 seconds
     while ((WiFi.status() != WL_CONNECTED) && (millis() - startAttemptTime < 10000)) {
         Serial.print(".");
         delay(500);
     }
 
-    // Check if connection failed
     if (WiFi.status() != WL_CONNECTED) {
         Serial.println("\nFailed to connect to Wi-Fi.");
         return false;
@@ -122,7 +118,6 @@ bool SetupWebServer()
 
 void HandleRoot()
 {
-    // Create a local copy of the HTML from index_html.h
     String html = INDEX_HTML;
     // Replace placeholders with actual states
     html.replace("%CURRENT_STATE%", RobotStateToString(g_robotState));
@@ -135,20 +130,33 @@ void HandleStateChange()
 {
     String stateArg = g_server.arg("state");
 
+    digitalWrite(45, LOW);
+    digitalWrite(46, LOW);
+    digitalWrite(47, LOW);
+    digitalWrite(48, LOW);
+
     if (stateArg == "standby") {
         g_robotState = RobotState::Standby;
         g_recordCount = 0;
         g_replayIndex = 0;
-    } else if (stateArg == "teach") {
+        digitalWrite(45, HIGH);  // Standby LED
+    } 
+    else if (stateArg == "teach") {
         g_robotState = RobotState::Teach;
-    } else if (stateArg == "operate") {
+        digitalWrite(46, HIGH);  // Teach LED
+    } 
+    else if (stateArg == "operate") {
         g_robotState = RobotState::Operate;
-    } else {
+        digitalWrite(47, HIGH);  // Operate LED
+    } 
+    else {
+        // Invalid state => turn on pin 48 for "unknown" or "error" LED
         g_server.send(400, "text/plain", "Invalid state.");
+        digitalWrite(48, HIGH);
         return;
     }
 
-    // Redirect back to home page
+    // Redirect back to the home page
     g_server.sendHeader("Location", "/");
     g_server.send(303);
 }
@@ -178,7 +186,6 @@ void HandleGripperChange()
 
 void HandleServoControl()
 {
-    // Ensure the required arguments exist
     if (!g_server.hasArg("servo") || !g_server.hasArg("action")) {
         g_server.send(400, "text/plain", "Missing arguments.");
         return;
@@ -202,7 +209,6 @@ void HandleServoControl()
     float delta = 5.0f; // Step size for each press
     float* targetAngle = nullptr;
 
-    // Determine which servo to address
     switch (servoId) {
         case 1: targetAngle = &g_servo1Angle; break;
         case 2: targetAngle = &g_servo2Angle; break;
@@ -211,7 +217,6 @@ void HandleServoControl()
         default: break;
     }
 
-    // Perform requested action (increase, decrease, or stop)
     if (action == "increase") {
         *targetAngle += delta;
         if (*targetAngle > 180.0f) *targetAngle = 180.0f;
@@ -219,13 +224,13 @@ void HandleServoControl()
         *targetAngle -= delta;
         if (*targetAngle < 0.0f) *targetAngle = 0.0f;
     } else if (action == "stop") {
-        // No immediate action required; angles are already up-to-date
+        // No immediate action required
     } else {
         g_server.send(400, "text/plain", "Invalid action.");
         return;
     }
 
-    // Write updated angles immediately to each servo
+    // Write updated angles immediately
     g_servo1->write(static_cast<int>(g_servo1Angle));
     g_servo2->write(static_cast<int>(g_servo2Angle));
     g_servo3->write(static_cast<int>(g_servo3Angle));
@@ -236,7 +241,6 @@ void HandleServoControl()
 
 void HandleGetServoAngles()
 {
-    // Return JSON with current servo angles
     String json = "{";
     json += "\"servo1Angle\":" + String(g_servo1Angle) + ",";
     json += "\"servo2Angle\":" + String(g_servo2Angle) + ",";
@@ -249,23 +253,18 @@ void HandleGetServoAngles()
 
 void HandleRecordPosition()
 {
-    // Only record in TEACH mode
     if (g_robotState != RobotState::Teach) {
-        // Redirect back if we're not in TEACH mode
         g_server.sendHeader("Location", "/");
         g_server.send(303);
         return;
     }
 
-    // Attempt to record the position
     if (!RecordCurrentPosition()) {
-        // If it fails (limit reached), simply redirect home
         g_server.sendHeader("Location", "/");
         g_server.send(303);
         return;
     }
 
-    // If successful, also redirect
     g_server.sendHeader("Location", "/");
     g_server.send(303);
 
@@ -301,15 +300,12 @@ bool RecordCurrentPosition()
 
 void RunReplayCycle()
 {
-    // Use static local variables to keep track of the replay state
     static bool replaying = false;
     static unsigned long lastStepTime = 0;
     static int stepIndex = -1;
 
-    // If not replaying, but we have recorded positions, start replay
     if (!replaying) {
         if (g_recordCount == 0) {
-            // Nothing to replay
             return;
         }
         replaying = true;
@@ -317,20 +313,16 @@ void RunReplayCycle()
         lastStepTime = millis();
     }
 
-    // Move to next position every 2 seconds (2000 ms)
     if (replaying && (millis() - lastStepTime > 2000)) {
         if (stepIndex < g_recordCount) {
-            // Load recorded angles
             PositionRecord rec = g_positionRecords[stepIndex];
             g_servo1Angle = rec.servo1Angle;
             g_servo2Angle = rec.servo2Angle;
             g_servo3Angle = rec.servo3Angle;
             g_servo4Angle = rec.servo4Angle;
 
-            // Determine end-effector angle from gripper state
             g_endEffectorAngle = (rec.gripperState == GripperState::Open) ? 40 : 160;
 
-            // Write updated angles
             g_servo1->write(static_cast<int>(g_servo1Angle));
             g_servo2->write(static_cast<int>(g_servo2Angle));
             g_servo3->write(static_cast<int>(g_servo3Angle));
@@ -342,7 +334,6 @@ void RunReplayCycle()
             stepIndex++;
             lastStepTime = millis();
         } else {
-            // Completed replay
             Serial.println("Completed replaying all positions.");
             replaying = false;
         }
