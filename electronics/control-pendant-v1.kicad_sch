@@ -5,9 +5,9 @@
 	(uuid "139100a3-91a6-4fc6-8148-7207320f9868")
 	(paper "A3")
 	(title_block
-		(title "Control Electronics for GDIP V1")
-		(date "2024-11-26")
-		(company "Tribonix ")
+		(title "Control Electronics for GDIP")
+		(date "2025-01-05")
+		(rev "v1.0")
 		(comment 1 "Drawn By: Filip Hanus")
 	)
 	(lib_symbols
